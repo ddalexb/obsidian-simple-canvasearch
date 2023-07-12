@@ -10,11 +10,11 @@ import {
 } from "obsidian";
 import { AllCanvasNodeData } from "./canvas";
 
-interface MyPluginSettings {
+interface CanvaSearchSettings {
   searchText: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: CanvaSearchSettings = {
   searchText: "False",
 };
 
@@ -29,8 +29,8 @@ function focusOnNode(canvas: any, node: any) {
   });
 }
 
-export default class MyPlugin extends Plugin {
-  settings: MyPluginSettings;
+export default class CanvaSearch extends Plugin {
+  settings: CanvaSearchSettings;
   async index_canvas_notes(
     searchText: string
   ): Promise<[AllCanvasNodeData, string][]> {
@@ -79,7 +79,7 @@ export default class MyPlugin extends Plugin {
       callback: async () => {
         current_index = await this.index_canvas_notes(this.settings.searchText);
         console.log(current_index);
-        new SampleModal(this.app).open();
+        new CanvaSearchModal(this.app).open();
       },
     });
 
@@ -89,7 +89,7 @@ export default class MyPlugin extends Plugin {
       console.log("click", evt);
     });
     // This adds a settings tab so the user can configure various aspects of the plugin
-    this.addSettingTab(new SampleSettingTab(this.app, this));
+    this.addSettingTab(new CanvaSearchSettingTab(this.app, this));
     // When registering intervals, this function will automatically clear the interval when the plugin is disabled.
     this.registerInterval(
       window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
@@ -107,7 +107,7 @@ export default class MyPlugin extends Plugin {
   }
 }
 
-class SampleModal extends FuzzySuggestModal<[AllCanvasNodeData, string]> {
+class CanvaSearchModal extends FuzzySuggestModal<[AllCanvasNodeData, string]> {
   getActiveCanvas(): any {
     const maybeCanvasView = this.app.workspace.getLeaf().view;
     return maybeCanvasView ? (maybeCanvasView as any)["canvas"] : null;
@@ -169,10 +169,10 @@ class SampleModal extends FuzzySuggestModal<[AllCanvasNodeData, string]> {
   }
 }
 
-class SampleSettingTab extends PluginSettingTab {
-  plugin: MyPlugin;
+class CanvaSearchSettingTab extends PluginSettingTab {
+  plugin: CanvaSearch;
 
-  constructor(app: App, plugin: MyPlugin) {
+  constructor(app: App, plugin: CanvaSearch) {
     super(app, plugin);
     this.plugin = plugin;
   }
@@ -181,8 +181,6 @@ class SampleSettingTab extends PluginSettingTab {
     const { containerEl } = this;
 
     containerEl.empty();
-
-    containerEl.createEl("h2", { text: "Settings for my awesome plugin." });
 
     new Setting(containerEl)
       .setName("Include note contents in search")

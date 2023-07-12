@@ -1,5 +1,5 @@
 {
-	"name": "obsidian-simple-canvasearch",
+	"name": "simple-canvasearch",
 	"version": "0.1.0",
 	"description": "This is a simple plugin for fuzzy searching within a canvas file.",
 	"main": "main.js",
