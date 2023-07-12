@@ -1,0 +1,11 @@
+{
+	"id": "sample-plugin",
+	"name": "Sample Plugin",
+	"version": "0.1.0",
+	"minAppVersion": "1.3.5",
+	"description": "This is a simple plugin for fuzzy searching within a canvas file.",
+	"author": "ddalexb",
+	"authorUrl": "https://github.com/ddalexb",
+	"fundingUrl": "https://github.com/ddalexb/",
+	"isDesktopOnly": true
+}
