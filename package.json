@@ -1,7 +1,7 @@
 {
 	"name": "simple-canvasearch",
 	"version": "0.1.0",
-	"description": "This is a simple plugin for fuzzy searching within a canvas file.",
+	"description": "Quickly fuzzy-search and shift focus to notes or cards within the currently opened canvas.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

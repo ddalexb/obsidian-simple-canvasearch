@@ -8,14 +8,15 @@ import {
   Setting,
   TFile,
 } from "obsidian";
-import { AllCanvasNodeData } from "./canvas";
+
+import { AllCanvasNodeData } from "obsidian/canvas";
 
 interface CanvaSearchSettings {
-  searchText: string;
+  searchText: boolean;
 }
 
 const DEFAULT_SETTINGS: CanvaSearchSettings = {
-  searchText: "False",
+  searchText: false,
 };
 
 var current_index: [AllCanvasNodeData, string][];
@@ -32,7 +33,7 @@ function focusOnNode(canvas: any, node: any) {
 export default class CanvaSearch extends Plugin {
   settings: CanvaSearchSettings;
   async index_canvas_notes(
-    searchText: string
+    searchText: boolean
   ): Promise<[AllCanvasNodeData, string][]> {
     const canvasView = this.app.workspace.getActiveViewOfType(ItemView);
     const vault = this.app.vault;
@@ -40,7 +41,7 @@ export default class CanvaSearch extends Plugin {
       // @ts-ignore
       const canvas = canvasView.canvas;
       let return_array;
-      if (searchText === "True") {
+      if (searchText) {
         return_array = canvas.data.nodes.map(async function (
           a: AllCanvasNodeData
         ) {
@@ -72,10 +73,9 @@ export default class CanvaSearch extends Plugin {
 
   async onload() {
     await this.loadSettings();
-    // This adds a simple command that can be triggered anywhere
     this.addCommand({
-      id: "open-sample-modal-simple",
-      name: "Open sample modal (simple)",
+      id: "open-canvasearch-modal",
+      name: "Open CanvaSearch modal",
       callback: async () => {
         current_index = await this.index_canvas_notes(this.settings.searchText);
         console.log(current_index);
@@ -83,17 +83,7 @@ export default class CanvaSearch extends Plugin {
       },
     });
 
-    // If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-    // Using this function will automatically remove the event listener when this plugin is disabled.
-    this.registerDomEvent(document, "click", (evt: MouseEvent) => {
-      console.log("click", evt);
-    });
-    // This adds a settings tab so the user can configure various aspects of the plugin
     this.addSettingTab(new CanvaSearchSettingTab(this.app, this));
-    // When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-    this.registerInterval(
-      window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
-    );
   }
 
   onunload() {}
@@ -187,13 +177,11 @@ class CanvaSearchSettingTab extends PluginSettingTab {
       .setDesc(
         "Will search inside the notes in your canvas, there is no indexing done so it can be very slow if your canvas is very large."
       )
-      .addDropdown((dropDown) => {
-        dropDown.addOption("True", "True");
-        dropDown.addOption("False", "False");
-        dropDown.setValue(this.plugin.settings.searchText);
-        dropDown.onChange(async (value) => {
-          this.plugin.settings.searchText = value;
-          await this.plugin.saveSettings();
+      .addToggle(toggle => {
+        toggle.setValue(this.plugin.settings.searchText)
+        toggle.onChange(async (value) => {
+                  this.plugin.settings.searchText = value;
+                  await this.plugin.saveSettings();
         });
       });
   }
