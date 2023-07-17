@@ -59,6 +59,10 @@ export default class CanvaSearch extends Plugin {
             let content = a.url;
             return [a, content];
           }
+          if (a.type == "group") {
+            let content = a.label;
+            return [a, content];
+          }
         });
       } else {
         return_array = canvas.data.nodes.map(async function (
@@ -78,7 +82,6 @@ export default class CanvaSearch extends Plugin {
       name: "Open CanvaSearch modal",
       callback: async () => {
         current_index = await this.index_canvas_notes(this.settings.searchText);
-        console.log(current_index);
         new CanvaSearchModal(this.app).open();
       },
     });
@@ -110,15 +113,17 @@ class CanvaSearchModal extends FuzzySuggestModal<[AllCanvasNodeData, string]> {
     return current_index;
   }
   getItemText(data: [AllCanvasNodeData, string]): string {
-    switch (data[0].type) {
+    let node_data: AllCanvasNodeData = data[0];
+    let node_content: string = data[1];
+    switch (node_data.type) {
       case "file":
-        console.log(data);
-        // @ts-ignore
-        return data[0].file + "\n" + data[1];
+        return node_data.file + "\n" + node_content;
+      case "group":
+        return <string>node_data.label;
       case "text":
-        return data[0].text;
+        return node_data.text;
       case "link":
-        return data[0].url;
+        return node_data.url;
       default:
         return "";
     }
@@ -133,18 +138,22 @@ class CanvaSearchModal extends FuzzySuggestModal<[AllCanvasNodeData, string]> {
       // @ts-ignore
       const canvas = canvasView.canvas;
     }
-    let data2 = data[0];
-    switch (data2.type) {
+    let node_data = data[0];
+    switch (node_data.type) {
       case "file":
-        new Notice(`Selected ${data2.file}`);
-        focusOnNode(this.getActiveCanvas(), data2);
+        new Notice(`Selected ${node_data.file}`);
+        focusOnNode(this.getActiveCanvas(), node_data);
+        break;
+      case "group":
+        new Notice(`Selected ${node_data.file}`);
+        focusOnNode(this.getActiveCanvas(), node_data);
         break;
       case "text":
-        new Notice(`Selected ${data2.text}`);
-        focusOnNode(this.getActiveCanvas(), data2);
+        new Notice(`Selected ${node_data.text}`);
+        focusOnNode(this.getActiveCanvas(), node_data);
         break;
       case "link":
-        new Notice(`Selected ${data2.url}`);
+        new Notice(`Selected ${node_data.url}`);
         break;
     }
   }
