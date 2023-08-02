@@ -102,7 +102,7 @@ export default class CanvaSearch extends Plugin {
 
 class CanvaSearchModal extends FuzzySuggestModal<[AllCanvasNodeData, string]> {
   getActiveCanvas(): any {
-    const maybeCanvasView = this.app.workspace.getLeaf().view;
+    const maybeCanvasView = this.app.workspace.activeLeaf?.view;
     return maybeCanvasView ? (maybeCanvasView as any)["canvas"] : null;
   }
   constructor(app: App) {
