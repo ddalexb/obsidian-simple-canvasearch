@@ -28,6 +28,9 @@ function focusOnNode(canvas: any, node: any) {
     maxX: node.x + node.width * 1,
     maxY: node.y + node.height * 1,
   });
+  let node_full = canvas.nodes.get(node.id);
+  canvas.deselectAll();
+  canvas.select(node_full);
 }
 
 export default class CanvaSearch extends Plugin {
@@ -74,19 +77,26 @@ export default class CanvaSearch extends Plugin {
       return await Promise.all(return_array);
     } else return [];
   }
-
   async onload() {
     await this.loadSettings();
     this.addCommand({
       id: "open-canvasearch-modal",
       name: "Open CanvaSearch modal",
       callback: async () => {
-        current_index = await this.index_canvas_notes(this.settings.searchText);
-        new CanvaSearchModal(this.app).open();
+        const canvasView = this.app.workspace.getActiveViewOfType(ItemView);
+        if (canvasView?.getViewType() === "canvas") {
+          current_index = await this.index_canvas_notes(this.settings.searchText);
+          new CanvaSearchModal(this.app).open();
+        }
+        else {
+          this.openSearchBar()
+        }
       },
     });
-
     this.addSettingTab(new CanvaSearchSettingTab(this.app, this));
+  }
+  openSearchBar() {
+     (this.app as any).commands.executeCommandById('editor:open-search');
   }
 
   onunload() {}
