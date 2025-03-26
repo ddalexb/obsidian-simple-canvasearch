@@ -19,6 +19,18 @@ const DEFAULT_SETTINGS: CanvaSearchSettings = {
   searchText: false,
 };
 
+
+const EXCLUDED_IMAGE_EXTENSIONS: string[] = [
+    ".avif",
+    ".bmp",
+    ".gif",
+    ".jpeg",
+    ".jpg",
+    ".png",
+    ".svg",
+    ".webp"
+];
+
 var current_index: [AllCanvasNodeData, string][];
 
 function focusOnNode(canvas: any, node: any) {
@@ -31,6 +43,9 @@ function focusOnNode(canvas: any, node: any) {
   let node_full = canvas.nodes.get(node.id);
   canvas.deselectAll();
   canvas.select(node_full);
+}
+function checkExtensions(filename: string, extensions: string[]): boolean {
+    return extensions.some(ext => filename.endsWith(ext));
 }
 
 export default class CanvaSearch extends Plugin {
@@ -49,10 +64,15 @@ export default class CanvaSearch extends Plugin {
           a: AllCanvasNodeData
         ) {
           if (a.type == "file") {
-            let content = await vault.cachedRead(
-              <TFile>vault.getAbstractFileByPath(a.file)
-            );
-            return [a, content];
+            if (!checkExtensions(a.file, EXCLUDED_IMAGE_EXTENSIONS)) {
+              let content = await vault.cachedRead(
+                <TFile>vault.getAbstractFileByPath(a.file)
+              );
+              return [a, content];
+            }
+            else {
+              return [a, ""];
+            }
           }
           if (a.type == "text") {
             let content = a.text;
