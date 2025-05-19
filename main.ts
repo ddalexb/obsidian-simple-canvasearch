@@ -82,7 +82,7 @@ export default class CanvaSearch extends Plugin {
             let content = a.url;
             return [a, content];
           }
-          if (a.type == "group") {
+          if (a.type == "group" && a.label) {
             let content = a.label;
             return [a, content];
           }
@@ -91,10 +91,12 @@ export default class CanvaSearch extends Plugin {
         return_array = canvas.data.nodes.map(async function (
           a: AllCanvasNodeData
         ) {
-          return [a, ""];
+          if (a.type != "group" || a.label) {
+            return [a, ""];
+          }
         });
       }
-      return await Promise.all(return_array);
+      return (await Promise.all(return_array)).filter(Boolean);
     } else return [];
   }
   async onload() {
@@ -175,7 +177,7 @@ class CanvaSearchModal extends FuzzySuggestModal<[AllCanvasNodeData, string]> {
         focusOnNode(this.getActiveCanvas(), node_data);
         break;
       case "group":
-        new Notice(`Selected ${node_data.file}`);
+        new Notice(`Selected ${node_data.label}`);
         focusOnNode(this.getActiveCanvas(), node_data);
         break;
       case "text":
